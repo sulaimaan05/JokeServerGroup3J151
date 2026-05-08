@@ -38,7 +38,7 @@ public class JokeController {
     }
 
     public ControllerResponse<List<Joke>> getMyJokes(int creatorId, String creatorRole) {
-        if (!"joke_creator".equals(creatorRole) && !"moderator".equals(creatorRole))
+        if (!"creator".equals(creatorRole) && !"moderator".equals(creatorRole))
             return ControllerResponse.failure("Access denied. Only joke creators can view their submitted jokes.");
 
         List<Joke> jokes = jokeService.getJokesByCreator(creatorId);
