@@ -10,10 +10,9 @@ import lombok.*;
 @ToString
 @EqualsAndHashCode
 @Data
-
 public class Vote {
-    //Instance variables:
     private int voteId;
     private int userId;
     private int jokeId;
+    private int voteValue; // <-- add this
 }

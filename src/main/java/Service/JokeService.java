@@ -21,7 +21,7 @@ public class JokeService {
         this.jokeRepo = jokeRepo;
     }
 
-    public Optional<Joke> submitJoke(int creatorId, String creatorRole, String setup, String punchline, String category) {
+    public Optional<Joke> submitJoke(int creatorId, String creatorRole, String setup, String punchline, String category) throws SQLException {
         if (!canCreateJokes(creatorRole)) return Optional.empty();
         if (setup == null || setup.isBlank()) return Optional.empty();
         if (punchline == null || punchline.isBlank()) return Optional.empty();

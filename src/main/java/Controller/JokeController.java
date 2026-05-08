@@ -18,7 +18,7 @@ public class JokeController {
     }
 
     public ControllerResponse<Joke> submitJoke(int creatorId, String creatorRole,
-                                               String setup, String punchline, String category) {
+                                               String setup, String punchline, String category) throws SQLException {
         if (setup == null || setup.isBlank())
             return ControllerResponse.failure("Joke setup cannot be empty.");
         if (punchline == null || punchline.isBlank())
