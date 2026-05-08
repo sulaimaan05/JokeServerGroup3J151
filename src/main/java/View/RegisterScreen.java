@@ -14,7 +14,15 @@ public class RegisterScreen extends JFrame {
     private JButton backButton;
     private JLabel messageLabel;
 
+    private String username;
+    private int userId;
+    String role;
+
     public RegisterScreen() {
+        this.username = username;
+        this.userId = userId;
+        this.role = role;
+
         setTitle("Joke Server - Register");
         setSize(400, 350);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);

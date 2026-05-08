@@ -11,6 +11,10 @@ import java.util.List;
 
 public class ViewerScreen extends JFrame {
 
+    private String username;
+    private int userId;
+    private String role;
+
     //Instance variables:
     private JTextArea jokesArea;
     private JButton voteButton;
@@ -19,6 +23,10 @@ public class ViewerScreen extends JFrame {
     private JLabel messageLabel;
 
     public ViewerScreen(String username) {
+        this.username = username;
+        this.userId = userId;
+        this.role = role;
+
         setTitle("Joke Server - Welcome, " + username);
         setSize(500, 500);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
