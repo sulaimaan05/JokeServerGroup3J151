@@ -1,33 +1,20 @@
 package View;
 
-import Model.Joke;
-import Repository.DBConfig;
-import Repository.JokeRepo;
+import Protocol.Protocol;
 
 import javax.swing.*;
 import java.awt.*;
-import java.sql.SQLException;
-import java.util.List;
 
 public class ViewerScreen extends JFrame {
 
-    private String username;
-    private int userId;
-    private String role;
-
-    //Instance variables:
     private JTextArea jokesArea;
     private JButton voteButton;
     private JButton jokeOfDayButton;
     private JButton logoutButton;
     private JLabel messageLabel;
 
-    public ViewerScreen(String username) {
-        this.username = username;
-        this.userId = userId;
-        this.role = role;
-
-        setTitle("Joke Server - Welcome, " + username);
+    public ViewerScreen() {
+        setTitle("Joke Server - Welcome, " + LoginScreen.loggedInUserName);
         setSize(500, 500);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -35,27 +22,19 @@ public class ViewerScreen extends JFrame {
         JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        //Title:
         JLabel titleLabel = new JLabel("Browse Jokes", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
         mainPanel.add(titleLabel, BorderLayout.NORTH);
 
-        //Jokes display area:
-        //JScrollPane wraps the text area so it becomes scrollable.
         jokesArea = new JTextArea();
-        jokesArea.setEditable(false); //User can read but not type in here
+        jokesArea.setEditable(false);
         jokesArea.setLineWrap(true);
         jokesArea.setWrapStyleWord(true);
         jokesArea.setFont(new Font("Arial", Font.PLAIN, 14));
-        JScrollPane scrollPane = new JScrollPane(jokesArea);
-        mainPanel.add(scrollPane, BorderLayout.CENTER);
+        mainPanel.add(new JScrollPane(jokesArea), BorderLayout.CENTER);
 
-        //Bottom panel:
         messageLabel = new JLabel("", SwingConstants.CENTER);
         messageLabel.setForeground(Color.BLUE);
-
-        JPanel bottomPanel = new JPanel(new BorderLayout(5, 5));
-        bottomPanel.add(messageLabel, BorderLayout.NORTH);
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
         jokeOfDayButton = new JButton("Joke of the Day");
@@ -64,12 +43,14 @@ public class ViewerScreen extends JFrame {
         buttonPanel.add(jokeOfDayButton);
         buttonPanel.add(voteButton);
         buttonPanel.add(logoutButton);
-        bottomPanel.add(buttonPanel, BorderLayout.SOUTH);
 
+        JPanel bottomPanel = new JPanel(new BorderLayout(5, 5));
+        bottomPanel.add(messageLabel, BorderLayout.NORTH);
+        bottomPanel.add(buttonPanel,  BorderLayout.SOUTH);
         mainPanel.add(bottomPanel, BorderLayout.SOUTH);
+
         add(mainPanel);
 
-        //Load jokes when screen opens:
         loadJokes();
 
         jokeOfDayButton.addActionListener(e -> showJokeOfDay());
@@ -78,54 +59,92 @@ public class ViewerScreen extends JFrame {
     }
 
     private void loadJokes() {
-        // TODO: call Controller/Service to get approved jokes
-        // For now display placeholder text:
-//        jokesArea.setText("Loading jokes...\n\n" +
-//                "[1] Why don't scientists trust atoms?\n" +
-//                "    Because they make up everything!\n\n" +
-//                "[2] I told my wife she was drawing her eyebrows too high.\n" +
-//                "    She looked surprised.\n");
+        String response = LoginScreen.client.sendRequest(Protocol.buildGetApprovedJokes());
 
-        try {
-            JokeRepo jokeRepo = new JokeRepo(DBConfig.getInstance().getConnection());
-            List<Joke> jokes = jokeRepo.getApprovedJokes();
+        if (Protocol.isSuccess(response)) {
+            String data  = Protocol.getData(response);
+            String[] parts = data.split(Protocol.SEPARATOR, 2);
 
-            StringBuilder sb = new StringBuilder();
-            for (Joke joke : jokes) {
-                sb.append("[").append(joke.getJokeId()).append("] ");
-                sb.append(joke.getJokeText()).append("\n\n");
+            if (parts.length > 1 && !parts[1].isBlank()) {
+                String[] jokes = parts[1].split(Protocol.LIST_SEPARATOR);
+                StringBuilder sb = new StringBuilder();
+                for (String jokeStr : jokes) {
+                    if (jokeStr.isBlank()) continue;
+                    //Format: jokeId,creatorId,setup,punchline,status
+                    String[] fields = jokeStr.split(",", 4);
+                    if (fields.length >= 3) {
+                        sb.append("[").append(fields[0]).append("] ");
+                        sb.append(fields[2]).append("\n");
+                        sb.append("    ").append(fields[3]).append("\n\n");
+                    }
+                }
+                jokesArea.setText(sb.toString());
+            } else {
+                jokesArea.setText(parts[0]);
             }
-
-            jokesArea.setText(sb.toString());
-        } catch (SQLException e) {
-            jokesArea.setText("Error loading jokes.");
-            e.printStackTrace();
+        } else {
+            jokesArea.setText("Could not load jokes: "
+                    + Protocol.getData(response));
         }
     }
 
     private void showJokeOfDay() {
-        // TODO: call Controller/Service to get joke of the day
-        // JOptionPane is a quick built-in popup dialog
-        JOptionPane.showMessageDialog(this,
-                "Joke of the Day:\n\nWhy don't scientists trust atoms?\nBecause they make up everything!",
+        String response = LoginScreen.client.sendRequest(Protocol.buildGetJod());
+
+        String msg = Protocol.getData(response).split(Protocol.SEPARATOR)[0];
+        JOptionPane.showMessageDialog(this, msg,
                 "Joke of the Day",
-                JOptionPane.INFORMATION_MESSAGE);
+                Protocol.isSuccess(response)
+                        ? JOptionPane.INFORMATION_MESSAGE
+                        : JOptionPane.ERROR_MESSAGE);
     }
 
     private void showVoteDialog() {
-        //Ask the user which joke ID they want to vote on:
-        String input = JOptionPane.showInputDialog(this,
-                "Enter the joke number you want to vote on:",
+        String jokeIdStr = JOptionPane.showInputDialog(this,
+                "Enter the joke ID you want to vote on:",
                 "Vote on a Joke",
                 JOptionPane.QUESTION_MESSAGE);
 
-        if (input != null && !input.trim().isEmpty()) {
-            // TODO: call Controller/Service to cast vote
-            messageLabel.setText("Vote cast on joke #" + input + "!");
+        if (jokeIdStr == null || jokeIdStr.trim().isEmpty()) return;
+
+        try {
+            int jokeId = Integer.parseInt(jokeIdStr.trim());
+
+            int choice = JOptionPane.showOptionDialog(this,
+                    "How would you like to vote?",
+                    "Vote",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    new String[]{"Upvote", "Downvote"},
+                    "Upvote");
+
+            String response;
+            if (choice == 0) {
+                response = LoginScreen.client.sendRequest(
+                        Protocol.buildUpvote(
+                                LoginScreen.loggedInUserId, jokeId));
+            } else {
+                response = LoginScreen.client.sendRequest(
+                        Protocol.buildDownvote(
+                                LoginScreen.loggedInUserId, jokeId));
+            }
+
+            messageLabel.setForeground(
+                    Protocol.isSuccess(response) ? Color.GREEN : Color.RED);
+            messageLabel.setText(
+                    Protocol.getData(response).split(Protocol.SEPARATOR)[0]);
+
+        } catch (NumberFormatException e) {
+            messageLabel.setForeground(Color.RED);
+            messageLabel.setText("Please enter a valid joke ID number.");
         }
     }
 
     private void logout() {
+        LoginScreen.loggedInUserId   = -1;
+        LoginScreen.loggedInRole     = "";
+        LoginScreen.loggedInUserName = "";
         new LoginScreen().setVisible(true);
         dispose();
     }
