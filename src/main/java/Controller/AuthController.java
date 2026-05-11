@@ -26,8 +26,8 @@ public class AuthController {
         Optional<User> result = authService.register(username, password, email, role);
 
         return result
-                .map(u -> ControllerResponse.success("Registration successful. Welcome, " + u.getUsername() + "!", u))
-                .orElse(ControllerResponse.failure("Registration failed. Username may already be taken or role is invalid."));
+            .map(u -> ControllerResponse.success("Registration successful. Welcome, " + u.getUsername() + "!", u))
+            .orElse(ControllerResponse.failure("Registration failed. Username may already be taken or role is invalid."));
     }
 
     public ControllerResponse<User> login(String username, String password) throws SQLException {
@@ -39,7 +39,7 @@ public class AuthController {
         Optional<User> result = authService.login(username, password);
 
         return result
-                .map(u -> ControllerResponse.success("Login successful. Welcome back, " + u.getUsername() + "!", u))
-                .orElse(ControllerResponse.failure("Invalid username or password."));
+            .map(u -> ControllerResponse.success("Login successful. Welcome back, " + u.getUsername() + "!", u))
+            .orElse(ControllerResponse.failure("Invalid username or password."));
     }
 }

@@ -34,8 +34,8 @@ public class ModerationController {
 
         boolean approved = moderationService.approveJoke(moderatorRole, jokeId);
         return approved
-                ? ControllerResponse.success("Joke #" + jokeId + " has been approved and is now public.")
-                : ControllerResponse.failure("Failed to approve joke. It may not exist or is not in a pending state.");
+            ? ControllerResponse.success("Joke #" + jokeId + " has been approved and is now public.")
+            : ControllerResponse.failure("Failed to approve joke. It may not exist or is not in a pending state.");
     }
 
     public ControllerResponse<Void> rejectJoke(String moderatorRole, int jokeId) throws SQLException {
@@ -44,8 +44,8 @@ public class ModerationController {
 
         boolean rejected = moderationService.rejectJoke(moderatorRole, jokeId);
         return rejected
-                ? ControllerResponse.success("Joke #" + jokeId + " has been rejected.")
-                : ControllerResponse.failure("Failed to reject joke. It may not exist or is not in a pending state.");
+            ? ControllerResponse.success("Joke #" + jokeId + " has been rejected.")
+            : ControllerResponse.failure("Failed to reject joke. It may not exist or is not in a pending state.");
     }
 
     public ControllerResponse<List<User>> getPendingModeratorRequests(String moderatorRole) throws SQLException {
@@ -65,8 +65,8 @@ public class ModerationController {
 
         boolean approved = moderationService.approveModeratorRequest(moderatorRole, targetUserId);
         return approved
-                ? ControllerResponse.success("User #" + targetUserId + " has been promoted to moderator.")
-                : ControllerResponse.failure("Failed to approve request. User may not exist or is not pending moderator status.");
+            ? ControllerResponse.success("User #" + targetUserId + " has been promoted to moderator.")
+            : ControllerResponse.failure("Failed to approve request. User may not exist or is not pending moderator status.");
     }
 
     public ControllerResponse<Void> denyModeratorRequest(String moderatorRole, int targetUserId) throws SQLException {
@@ -75,7 +75,7 @@ public class ModerationController {
 
         boolean denied = moderationService.denyModeratorRequest(moderatorRole, targetUserId);
         return denied
-                ? ControllerResponse.success("Moderator request for user #" + targetUserId + " has been denied.")
-                : ControllerResponse.failure("Failed to deny request. User may not exist or is not pending moderator status.");
+            ? ControllerResponse.success("Moderator request for user #" + targetUserId + " has been denied.")
+            : ControllerResponse.failure("Failed to deny request. User may not exist or is not pending moderator status.");
     }
 }

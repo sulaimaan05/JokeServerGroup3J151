@@ -7,24 +7,21 @@ import java.net.Socket;
 
 public class Client {
 
-    private static final String SERVER_IP   = "192.168.8.128";
-    private static final int    SERVER_PORT = 5000;
+    private static final String SERVER_IP = "192.168.8.128";
+    private static final int SERVER_PORT = 5000;
 
-    private Socket         socket;
+    private Socket socket;
     private BufferedReader in;
-    private PrintWriter    out;
+    private PrintWriter out;
 
-    //Connect to the server.
-    //Returns true if successful, false if connection failed:
+    //Connects to the server.
+    //Returns true if successful, false if the connection failed:
     public boolean connect() {
         try {
             socket = new Socket(SERVER_IP, SERVER_PORT);
-            in     = new BufferedReader(
-                    new InputStreamReader(socket.getInputStream()));
-            out    = new PrintWriter(
-                    socket.getOutputStream(), true);
-            System.out.println("[Client] Connected to server at "
-                    + SERVER_IP + ":" + SERVER_PORT);
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            out = new PrintWriter(socket.getOutputStream(), true);
+            System.out.println("[Client] Connected to server at " + SERVER_IP + ":" + SERVER_PORT);
             return true;
         } catch (IOException e) {
             System.err.println("[Client] Could not connect: " + e.getMessage());
@@ -33,7 +30,7 @@ public class Client {
     }
 
     //Send a request string and return the server's response.
-    //This is the only method your View screens need to call:
+    //This is the only method the View screens need to call:
     public String sendRequest(String request) {
         try {
             System.out.println("[Client] Sending:  " + request);

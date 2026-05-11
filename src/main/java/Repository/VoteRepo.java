@@ -16,10 +16,11 @@ public class VoteRepo implements AutoCloseable {
 
     //Create method:
     public Optional<Vote> createVote(Vote vote) throws SQLException {
-        String sql = "INSERT INTO Votes (userId, jokeId) VALUES (?, ?)";
+        String sql = "INSERT INTO Votes (userId, jokeId, voteValue) VALUES (?, ?, ?)";
         try (PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, vote.getUserId());
             ps.setInt(2, vote.getJokeId());
+            ps.setInt(3, vote.getVoteValue());
 
             if (ps.executeUpdate() > 0) {
                 try (ResultSet rs = ps.getGeneratedKeys()) {
@@ -33,7 +34,7 @@ public class VoteRepo implements AutoCloseable {
         return Optional.empty();
     }
 
-    //Read by ID method:
+    //Read by ID:
     public Optional<Vote> getVoteById(int voteId) throws SQLException {
         String sql = "SELECT * FROM Votes WHERE voteId = ?";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
@@ -44,6 +45,7 @@ public class VoteRepo implements AutoCloseable {
                             .voteId(rs.getInt("voteId"))
                             .userId(rs.getInt("userId"))
                             .jokeId(rs.getInt("jokeId"))
+                            .voteValue(rs.getInt("voteValue"))  // added
                             .build());
                 }
             }
@@ -75,6 +77,7 @@ public class VoteRepo implements AutoCloseable {
                             .voteId(rs.getInt("voteId"))
                             .userId(rs.getInt("userId"))
                             .jokeId(rs.getInt("jokeId"))
+                            .voteValue(rs.getInt("voteValue"))  // added
                             .build());
                 }
             }
@@ -94,6 +97,7 @@ public class VoteRepo implements AutoCloseable {
                             .voteId(rs.getInt("voteId"))
                             .userId(rs.getInt("userId"))
                             .jokeId(rs.getInt("jokeId"))
+                            .voteValue(rs.getInt("voteValue"))  // added
                             .build());
                 }
             }
@@ -126,6 +130,7 @@ public class VoteRepo implements AutoCloseable {
                         .voteId(rs.getInt("voteId"))
                         .userId(rs.getInt("userId"))
                         .jokeId(rs.getInt("jokeId"))
+                        .voteValue(rs.getInt("voteValue"))  // added
                         .build());
             }
         }

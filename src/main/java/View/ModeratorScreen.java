@@ -7,15 +7,15 @@ import java.awt.*;
 
 public class ModeratorScreen extends JFrame {
 
-    private JTextArea  pendingJokesArea;
+    private JTextArea pendingJokesArea;
     private JTextField jokeIdField;
-    private JButton    approveButton;
-    private JButton    rejectButton;
-    private JButton    jokeOfDayButton;
-    private JButton    refreshJodButton;
-    private JButton    modRequestsButton;
-    private JButton    logoutButton;
-    private JLabel     messageLabel;
+    private JButton approveButton;
+    private JButton rejectButton;
+    private JButton jokeOfDayButton;
+    private JButton refreshJodButton;
+    private JButton modRequestsButton;
+    private JButton logoutButton;
+    private JLabel messageLabel;
 
     public ModeratorScreen() {
         setTitle("Joke Server - Moderator: " + LoginScreen.loggedInUserName);
@@ -67,9 +67,9 @@ public class ModeratorScreen extends JFrame {
         buttonPanel.add(logoutButton);
 
         JPanel bottomPanel = new JPanel(new BorderLayout(5, 5));
-        bottomPanel.add(reviewPanel,  BorderLayout.NORTH);
+        bottomPanel.add(reviewPanel, BorderLayout.NORTH);
         bottomPanel.add(messageLabel, BorderLayout.CENTER);
-        bottomPanel.add(buttonPanel,  BorderLayout.SOUTH);
+        bottomPanel.add(buttonPanel, BorderLayout.SOUTH);
         mainPanel.add(bottomPanel, BorderLayout.SOUTH);
 
         add(mainPanel);
@@ -88,15 +88,15 @@ public class ModeratorScreen extends JFrame {
         String response = LoginScreen.client.sendRequest(Protocol.buildGetPending(LoginScreen.loggedInRole));
 
         if (Protocol.isSuccess(response)) {
-            String data  = Protocol.getData(response);
+            String data = Protocol.getData(response);
             String[] parts = data.split(Protocol.SEPARATOR, 2);
 
             if (parts.length > 1 && !parts[1].isBlank()) {
-                String[]      jokes = parts[1].split(Protocol.LIST_SEPARATOR);
-                StringBuilder sb    = new StringBuilder();
+                String[] jokes = parts[1].split(Protocol.LIST_SEPARATOR);
+                StringBuilder sb = new StringBuilder();
                 for (String jokeStr : jokes) {
                     if (jokeStr.isBlank()) continue;
-                    // format: jokeId,creatorId,setup,punchline,status
+                    //Format: jokeId,creatorId,setup,punchline,status
                     String[] fields = jokeStr.split(",", 5);
                     if (fields.length >= 4) {
                         sb.append("[ID: ").append(fields[0]).append("] ");
@@ -109,8 +109,7 @@ public class ModeratorScreen extends JFrame {
                 pendingJokesArea.setText(parts[0]);
             }
         } else {
-            pendingJokesArea.setText("Could not load pending jokes: "
-                    + Protocol.getData(response));
+            pendingJokesArea.setText("Could not load pending jokes: " + Protocol.getData(response));
         }
     }
 
@@ -137,10 +136,8 @@ public class ModeratorScreen extends JFrame {
                                 LoginScreen.loggedInRole, jokeId));
             }
 
-            messageLabel.setForeground(
-                    Protocol.isSuccess(response) ? Color.GREEN : Color.RED);
-            messageLabel.setText(
-                    Protocol.getData(response).split(Protocol.SEPARATOR)[0]);
+            messageLabel.setForeground(Protocol.isSuccess(response) ? Color.GREEN : Color.RED);
+            messageLabel.setText(Protocol.getData(response).split(Protocol.SEPARATOR)[0]);
 
             if (Protocol.isSuccess(response)) {
                 jokeIdField.setText("");
@@ -154,8 +151,7 @@ public class ModeratorScreen extends JFrame {
     }
 
     private void showJokeOfDay() {
-        String response = LoginScreen.client.sendRequest(
-                Protocol.buildGetJod());
+        String response = LoginScreen.client.sendRequest(Protocol.buildGetJod());
         String msg = Protocol.getData(response).split(Protocol.SEPARATOR)[0];
         JOptionPane.showMessageDialog(this, msg,
                 "Joke of the Day",
@@ -165,13 +161,10 @@ public class ModeratorScreen extends JFrame {
     }
 
     private void handleRefreshJod() {
-        String response = LoginScreen.client.sendRequest(
-                Protocol.buildRefreshJod(LoginScreen.loggedInRole));
+        String response = LoginScreen.client.sendRequest(Protocol.buildRefreshJod(LoginScreen.loggedInRole));
 
-        messageLabel.setForeground(
-                Protocol.isSuccess(response) ? Color.GREEN : Color.RED);
-        messageLabel.setText(
-                Protocol.getData(response).split(Protocol.SEPARATOR)[0]);
+        messageLabel.setForeground(Protocol.isSuccess(response) ? Color.GREEN : Color.RED);
+        messageLabel.setText(Protocol.getData(response).split(Protocol.SEPARATOR)[0]);
     }
 
     private void showModRequests() {
@@ -182,12 +175,11 @@ public class ModeratorScreen extends JFrame {
             String[] parts = data.split(Protocol.SEPARATOR, 2);
 
             if (parts.length > 1 && !parts[1].isBlank()) {
-                String[]      users = parts[1].split(Protocol.LIST_SEPARATOR);
-                StringBuilder sb    = new StringBuilder(
-                        "Pending Moderator Requests:\n\n");
+                String[] users = parts[1].split(Protocol.LIST_SEPARATOR);
+                StringBuilder sb = new StringBuilder("Pending Moderator Requests:\n\n");
                 for (String userStr : users) {
                     if (userStr.isBlank()) continue;
-                    // format: userId,username,email,role,displayName
+                    //Format: userId,username,email,role,displayName
                     String[] fields = userStr.split(",", 5);
                     if (fields.length >= 2) {
                         sb.append("[ID: ").append(fields[0]).append("] ");
@@ -226,12 +218,8 @@ public class ModeratorScreen extends JFrame {
                                             targetId));
                         }
 
-                        messageLabel.setForeground(
-                                Protocol.isSuccess(actionResponse)
-                                        ? Color.GREEN : Color.RED);
-                        messageLabel.setText(
-                                Protocol.getData(actionResponse)
-                                        .split(Protocol.SEPARATOR)[0]);
+                        messageLabel.setForeground(Protocol.isSuccess(actionResponse) ? Color.GREEN : Color.RED);
+                        messageLabel.setText(Protocol.getData(actionResponse).split(Protocol.SEPARATOR)[0]);
 
                     } catch (NumberFormatException e) {
                         messageLabel.setForeground(Color.RED);

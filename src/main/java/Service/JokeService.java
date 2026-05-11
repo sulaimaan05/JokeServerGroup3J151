@@ -11,7 +11,7 @@ public class JokeService {
 
     private final JokeRepo jokeRepo;
 
-    public static final String STATUS_PENDING  = "pending";
+    public static final String STATUS_PENDING = "pending";
     public static final String STATUS_APPROVED = "approved";
     public static final String STATUS_REJECTED = "rejected";
 
@@ -77,10 +77,10 @@ public class JokeService {
 
         Joke joke = jokeOpt.get();
 
-        // Only the original creator can edit their own joke
+        //Only the original creator can edit their own joke:
         if (joke.getCreatorId() != requesterId) return false;
 
-        // Cannot edit an approved or rejected joke
+        //Cannot edit an approved or rejected joke:
         if (!joke.getStatus().equals(STATUS_PENDING)) return false;
 
         if (newJokeText != null && !newJokeText.isBlank()) {
@@ -108,7 +108,7 @@ public class JokeService {
         Joke joke = jokeOpt.get();
 
         boolean isModerator = "moderator".equals(requesterRole);
-        boolean isOwner     = joke.getCreatorId() == requesterId;
+        boolean isOwner = joke.getCreatorId() == requesterId;
 
         if (!isModerator && !isOwner) return false;
 

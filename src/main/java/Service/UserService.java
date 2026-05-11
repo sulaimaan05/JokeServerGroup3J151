@@ -12,7 +12,7 @@ public class UserService {
 
     private final UserRepo userRepo;
 
-    // Roles ordered by privilege level (ascending)
+    //Roles ordered by privilege level (ascending):
     private static final List<String> ROLE_HIERARCHY = List.of(
             "user",
             "joke_creator",
@@ -63,7 +63,7 @@ public class UserService {
     public boolean updateUsername(int userId, String newUsername) throws SQLException {
         if (newUsername == null || newUsername.isBlank()) return false;
 
-        // Ensure new username is not already taken
+        //Ensure that the new username is not already taken:
         Optional<User> conflict = userRepo.getUserByUsername(newUsername);
         if (conflict.isPresent()) return false;
 
@@ -86,10 +86,10 @@ public class UserService {
         int currentIndex = ROLE_HIERARCHY.indexOf(currentRole);
         int targetIndex  = ROLE_HIERARCHY.indexOf(newRole);
 
-        // Must be a valid role and must be a promotion, not a lateral/demotion
+        //Must be a valid role and must be a promotion, not a lateral/demotion:
         if (targetIndex <= currentIndex) return false;
 
-        // Only allow one step at a time
+        //Only allow one step at a time:
         if (targetIndex - currentIndex != 1) return false;
 
         user.setRole(newRole);
@@ -107,7 +107,7 @@ public class UserService {
         int currentIndex = ROLE_HIERARCHY.indexOf(currentRole);
         int targetIndex  = ROLE_HIERARCHY.indexOf(newRole);
 
-        // Must be a valid role and must be a demotion
+        //Must be a valid role and must be a demotion:
         if (targetIndex >= currentIndex || targetIndex < 0) return false;
 
         user.setRole(newRole);

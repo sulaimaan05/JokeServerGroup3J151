@@ -20,15 +20,15 @@ public class VoteService {
     }
 
     public Optional<Vote> castVote(int userId, int jokeId, int voteValue) throws SQLException {
-        // Validate vote value
+        //Validate vote value:
         if (voteValue != 1 && voteValue != -1) return Optional.empty();
 
-        // Ensure the joke exists and is approved
+        //Ensure the joke exists and is approved:
         var jokeOpt = jokeRepo.getJokeById(jokeId);
         if (jokeOpt.isEmpty()) return Optional.empty();
         if (!"approved".equals(jokeOpt.get().getStatus())) return Optional.empty();
 
-        // Prevent duplicate votes
+        //Prevent duplicate votes:
         if (voteRepo.hasUserVoted(userId, jokeId)) return Optional.empty();
 
         Vote vote = new Vote();

@@ -21,13 +21,13 @@ public class AuthService {
         if (email == null || email.isBlank()) return Optional.empty();
         if (!isValidRole(role)) return Optional.empty();
 
-        // Prevent duplicate usernames
+        //Prevents duplicate usernames:
         Optional<User> existing = userRepo.getUserByUsername(username);
         if (existing.isPresent()) return Optional.empty();
 
         User newUser = new User();
         newUser.setUsername(username);
-        newUser.setPassword(password);   // Hash this in production
+        newUser.setPassword(password); //This password actually needs to be hashed, but I don't know how to do that XD
         newUser.setEmail(email);
         newUser.setRole(role);
 
@@ -44,7 +44,7 @@ public class AuthService {
 
         User user = userOpt.get();
 
-        // Compare passwords (use BCrypt or similar in production)
+        //Compare passwords: (usually would use BCrypt or something similar in production).
         if (!user.getPassword().equals(password)) return Optional.empty();
 
         return Optional.of(user);

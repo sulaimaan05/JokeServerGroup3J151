@@ -53,8 +53,8 @@ public class ModerationService {
         if (!isModerator(moderatorRole)) return List.of();
 
         return userRepo.readAllUsers().stream()
-                .filter(u -> "moderator_pending".equals(u.getRole()))
-                .toList();
+            .filter(u -> "moderator_pending".equals(u.getRole()))
+            .toList();
     }
 
     public boolean approveModeratorRequest(String moderatorRole, int targetUserId) throws SQLException {

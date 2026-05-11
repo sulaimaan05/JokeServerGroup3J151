@@ -80,7 +80,7 @@ public class RegisterScreen extends JFrame {
             return;
         }
 
-        // Send register request to server
+        //Send register request to server:
         String response = LoginScreen.client.sendRequest(Protocol.buildRegister(username, password, email, role));
 
         if (Protocol.isSuccess(response)) {
@@ -91,9 +91,9 @@ public class RegisterScreen extends JFrame {
             if (parts.length > 1) {
                 //Format: userId,username,email,role,displayName
                 String[] userFields = parts[1].split(",", 5);
-                LoginScreen.loggedInUserId   = Integer.parseInt(userFields[0]);
+                LoginScreen.loggedInUserId = Integer.parseInt(userFields[0]);
                 LoginScreen.loggedInUserName = userFields[1];
-                LoginScreen.loggedInRole     = userFields[3];
+                LoginScreen.loggedInRole = userFields[3];
             }
 
             //Open the correct screen straight away — no need to go back to login after registering.

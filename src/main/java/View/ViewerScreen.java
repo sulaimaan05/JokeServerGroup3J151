@@ -46,7 +46,7 @@ public class ViewerScreen extends JFrame {
 
         JPanel bottomPanel = new JPanel(new BorderLayout(5, 5));
         bottomPanel.add(messageLabel, BorderLayout.NORTH);
-        bottomPanel.add(buttonPanel,  BorderLayout.SOUTH);
+        bottomPanel.add(buttonPanel, BorderLayout.SOUTH);
         mainPanel.add(bottomPanel, BorderLayout.SOUTH);
 
         add(mainPanel);
@@ -121,13 +121,9 @@ public class ViewerScreen extends JFrame {
 
             String response;
             if (choice == 0) {
-                response = LoginScreen.client.sendRequest(
-                        Protocol.buildUpvote(
-                                LoginScreen.loggedInUserId, jokeId));
+                response = LoginScreen.client.sendRequest(Protocol.buildUpvote(LoginScreen.loggedInUserId, jokeId));
             } else {
-                response = LoginScreen.client.sendRequest(
-                        Protocol.buildDownvote(
-                                LoginScreen.loggedInUserId, jokeId));
+                response = LoginScreen.client.sendRequest(Protocol.buildDownvote(LoginScreen.loggedInUserId, jokeId));
             }
 
             messageLabel.setForeground(

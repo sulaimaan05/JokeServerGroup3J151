@@ -1,16 +1,15 @@
 package Controller;
 
-
 public class ControllerResponse<T> {
 
     private final boolean success;
-    private final String  message;
-    private final T       data;
+    private final String message;
+    private final T data;
 
     private ControllerResponse(boolean success, String message, T data) {
         this.success = success;
         this.message = message;
-        this.data    = data;
+        this.data = data;
     }
 
     public static <T> ControllerResponse<T> success(String message, T data) {
@@ -26,8 +25,8 @@ public class ControllerResponse<T> {
     }
 
     public boolean isSuccess() { return success; }
-    public String  getMessage() { return message; }
-    public T       getData()    { return data;    }
+    public String getMessage() { return message; }
+    public T getData() { return data; }
 
     @Override
     public String toString() {

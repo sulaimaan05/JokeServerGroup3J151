@@ -14,5 +14,5 @@ public class Vote {
     private int voteId;
     private int userId;
     private int jokeId;
-    private int voteValue; // <-- add this
+    private int voteValue; //Upvote = 1, downvote = -1.
 }

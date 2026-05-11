@@ -12,15 +12,15 @@ public class LoginScreen extends JFrame {
     public static final Client client = new Client();
 
     //Logged-in user details — set once at login, used by all screens afterwards:
-    public static int    loggedInUserId   = -1;
+    public static int loggedInUserId   = -1;
     public static String loggedInRole     = "";
     public static String loggedInUserName = "";
 
-    private JTextField     usernameField;
+    private JTextField usernameField;
     private JPasswordField passwordField;
-    private JButton        loginButton;
-    private JButton        registerButton;
-    private JLabel         messageLabel;
+    private JButton loginButton;
+    private JButton registerButton;
+    private JLabel messageLabel;
 
     public LoginScreen() {
         setTitle("Joke Server - Login");
@@ -91,7 +91,7 @@ public class LoginScreen extends JFrame {
         if (Protocol.isSuccess(response)) {
             //Response format:
             //SUCCESS|Welcome back, alice!|1,alice,alice@test.com,joke_creator,Alice
-            String   data  = Protocol.getData(response);
+            String data  = Protocol.getData(response);
             String[] parts = data.split(Protocol.SEPARATOR, 2);
 
             if (parts.length > 1) {
@@ -116,8 +116,7 @@ public class LoginScreen extends JFrame {
                     break;
                 default:
                     messageLabel.setForeground(Color.RED);
-                    messageLabel.setText("Unknown role: "
-                            + LoginScreen.loggedInRole);
+                    messageLabel.setText("Unknown role: " + LoginScreen.loggedInRole);
                     return;
             }
             dispose();

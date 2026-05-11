@@ -29,16 +29,16 @@ public class VoteController {
             return ControllerResponse.failure("You have already voted on this joke. Retract your vote first.");
 
         return voteService.castVote(userId, jokeId, value)
-                .map(v -> ControllerResponse.success(
-                        (value == 1 ? "Upvote" : "Downvote") + " cast successfully.", v))
-                .orElse(ControllerResponse.failure("Failed to cast vote. The joke may not exist or is not yet approved."));
+            .map(v -> ControllerResponse.success(
+                    (value == 1 ? "Upvote" : "Downvote") + " cast successfully.", v))
+            .orElse(ControllerResponse.failure("Failed to cast vote. The joke may not exist or is not yet approved."));
     }
 
     public ControllerResponse<Void> retractVote(int userId, int jokeId) throws SQLException {
         boolean retracted = voteService.retractVote(userId, jokeId);
         return retracted
-                ? ControllerResponse.success("Your vote has been retracted.")
-                : ControllerResponse.failure("No vote found to retract for this joke.");
+            ? ControllerResponse.success("Your vote has been retracted.")
+            : ControllerResponse.failure("No vote found to retract for this joke.");
     }
 
     public ControllerResponse<Integer> getVoteCount(int jokeId) throws SQLException {
@@ -56,7 +56,7 @@ public class VoteController {
 
     public ControllerResponse<List<Vote>> getVotesByUser(int requesterId, String requesterRole, int targetUserId) throws SQLException {
         boolean isModerator = "moderator".equals(requesterRole);
-        boolean isSelf      = requesterId == targetUserId;
+        boolean isSelf = requesterId == targetUserId;
 
         if (!isModerator && !isSelf)
             return ControllerResponse.failure("Access denied. You may only view your own votes.");
@@ -71,7 +71,7 @@ public class VoteController {
 
         boolean deleted = voteService.deleteVoteById(voteId);
         return deleted
-                ? ControllerResponse.success("Vote #" + voteId + " deleted.")
-                : ControllerResponse.failure("Vote not found.");
+            ? ControllerResponse.success("Vote #" + voteId + " deleted.")
+            : ControllerResponse.failure("Vote not found.");
     }
 }

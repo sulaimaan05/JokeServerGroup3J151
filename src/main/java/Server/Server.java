@@ -1,12 +1,13 @@
 package Server;
 
 import Controller.*;
-import Repository.DBConfig;
+import Repository.*;
 import Service.*;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.Connection;
 
 public class Server {
 
@@ -15,35 +16,37 @@ public class Server {
     private ServerSocket serverSocket;
 
     //All controllers instantiated once and shared across all client handler threads:
-    private final AuthController        authController;
-    private final UserController        userController;
-    private final JokeController        jokeController;
-    private final ModerationController  moderationController;
-    private final VoteController        voteController;
+    private final AuthController authController;
+    private final UserController userController;
+    private final JokeController jokeController;
+    private final ModerationController moderationController;
+    private final VoteController voteController;
     private final JokeOfTheDayController jodController;
 
     public Server() {
-        //Instantiate services:
-        AuthService         authService      = new AuthService(
-                DBConfig.getInstance().getConnection());
-        UserService         userService      = new UserService(
-                DBConfig.getInstance().getConnection());
-        JokeService         jokeService      = new JokeService(
-                DBConfig.getInstance().getConnection());
-        ModerationService   modService       = new ModerationService(
-                DBConfig.getInstance().getConnection());
-        VoteService         voteService      = new VoteService(
-                DBConfig.getInstance().getConnection());
-        JokeOfTheDayService jodService       = new JokeOfTheDayService(
-                DBConfig.getInstance().getConnection());
+        //Instantiate repositories:
+        Connection con = DBConfig.getInstance().getConnection();
+
+        UserRepo userRepo = new UserRepo(con);
+        JokeRepo jokeRepo = new JokeRepo(con);
+        VoteRepo voteRepo = new VoteRepo(con);
+        JokeOfTheDayRepo jodRepo = new JokeOfTheDayRepo(con);
+
+        //Instantiate services with their repositories:
+        AuthService authService  = new AuthService(userRepo);
+        UserService userService  = new UserService(userRepo);
+        JokeService jokeService  = new JokeService(jokeRepo);
+        ModerationService modService   = new ModerationService(jokeRepo, userRepo);
+        VoteService voteService  = new VoteService(voteRepo, jokeRepo);
+        JokeOfTheDayService jodService   = new JokeOfTheDayService(jodRepo);
 
         //Instantiate controllers with their services:
-        this.authController       = new AuthController(authService);
-        this.userController       = new UserController(userService);
-        this.jokeController       = new JokeController(jokeService);
+        this.authController = new AuthController(authService);
+        this.userController = new UserController(userService);
+        this.jokeController = new JokeController(jokeService);
         this.moderationController = new ModerationController(modService);
-        this.voteController       = new VoteController(voteService);
-        this.jodController        = new JokeOfTheDayController(jodService);
+        this.voteController = new VoteController(voteService);
+        this.jodController = new JokeOfTheDayController(jodService);
     }
 
     public void start() {
@@ -53,12 +56,12 @@ public class Server {
             System.out.println("Waiting for clients...");
 
             while (true) {
-                //Wait for a client to connect
+                //Waits for a client to connect:
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("Client connected: "
                         + clientSocket.getInetAddress().getHostAddress());
 
-                //Give each client their own handler thread so multiple clients can be served at the same time
+                //Gives each client their own handler thread so multiple clients can be served at the same time:
                 ClientHandler handler = new ClientHandler(
                         clientSocket,
                         authController,

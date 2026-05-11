@@ -10,38 +10,28 @@ import java.util.List;
 
 public class ClientHandler implements Runnable {
 
-    private final Socket                 clientSocket;
-    private final AuthController         authController;
-    private final UserController         userController;
-    private final JokeController         jokeController;
-    private final ModerationController   moderationController;
-    private final VoteController         voteController;
+    private final Socket clientSocket;
+    private final AuthController authController;
+    private final UserController userController;
+    private final JokeController jokeController;
+    private final ModerationController moderationController;
+    private final VoteController voteController;
     private final JokeOfTheDayController jodController;
 
-    public ClientHandler(Socket clientSocket,
-                         AuthController authController,
-                         UserController userController,
-                         JokeController jokeController,
-                         ModerationController moderationController,
-                         VoteController voteController,
-                         JokeOfTheDayController jodController) {
-        this.clientSocket        = clientSocket;
-        this.authController      = authController;
-        this.userController      = userController;
-        this.jokeController      = jokeController;
-        this.moderationController= moderationController;
-        this.voteController      = voteController;
-        this.jodController       = jodController;
+    public ClientHandler(Socket clientSocket, AuthController authController, UserController userController, JokeController jokeController, ModerationController moderationController, VoteController voteController, JokeOfTheDayController jodController) {
+        this.clientSocket = clientSocket;
+        this.authController = authController;
+        this.userController = userController;
+        this.jokeController = jokeController;
+        this.moderationController = moderationController;
+        this.voteController = voteController;
+        this.jodController = jodController;
     }
 
     @Override
     public void run() {
-        try (
-                BufferedReader in  = new BufferedReader(
-                        new InputStreamReader(clientSocket.getInputStream()));
-                PrintWriter    out = new PrintWriter(
-                        clientSocket.getOutputStream(), true)
-        ) {
+        try (BufferedReader in  = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+             PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true)) {
             String request;
             while ((request = in.readLine()) != null) {
                 System.out.println("[Server] Received: " + request);
@@ -68,18 +58,17 @@ public class ClientHandler implements Runnable {
             return Protocol.error("Empty request.");
 
         String[] parts  = request.split(Protocol.SEPARATOR);
-        String   action = parts[0].toUpperCase();
+        String action = parts[0].toUpperCase();
 
         try {
             switch (action) {
 
-                //AUTH:
+                //Auth:
                 case Protocol.REGISTER: {
                     //REGISTER|username|password|email|role
                     if (parts.length < 5)
                         return Protocol.error("Missing fields for REGISTER.");
-                    ControllerResponse<User> res = authController.register(
-                            parts[1], parts[2], parts[3], parts[4]);
+                    ControllerResponse<User> res = authController.register(parts[1], parts[2], parts[3], parts[4]);
                     return serialize(res, res.isSuccess() ? serializeUser(res.getData()) : null);
                 }
 
@@ -87,18 +76,16 @@ public class ClientHandler implements Runnable {
                     //LOGIN|username|password
                     if (parts.length < 3)
                         return Protocol.error("Missing fields for LOGIN.");
-                    ControllerResponse<User> res = authController.login(
-                            parts[1], parts[2]);
+                    ControllerResponse<User> res = authController.login(parts[1], parts[2]);
                     return serialize(res, res.isSuccess() ? serializeUser(res.getData()) : null);
                 }
 
-                //USER:
+                //User:
                 case Protocol.GET_USER_BY_ID: {
                     //GET_USER_BY_ID|userId
                     if (parts.length < 2)
                         return Protocol.error("Missing userId.");
-                    ControllerResponse<User> res = userController.getUserById(
-                            Integer.parseInt(parts[1]));
+                    ControllerResponse<User> res = userController.getUserById(Integer.parseInt(parts[1]));
                     return serialize(res, res.isSuccess() ? serializeUser(res.getData()) : null);
                 }
 
@@ -114,8 +101,7 @@ public class ClientHandler implements Runnable {
                     //UPDATE_EMAIL|userId|newEmail
                     if (parts.length < 3)
                         return Protocol.error("Missing fields for UPDATE_EMAIL.");
-                    ControllerResponse<Void> res = userController.updateEmail(
-                            Integer.parseInt(parts[1]), parts[2]);
+                    ControllerResponse<Void> res = userController.updateEmail(Integer.parseInt(parts[1]), parts[2]);
                     return serialize(res, null);
                 }
 
@@ -123,8 +109,7 @@ public class ClientHandler implements Runnable {
                     //UPDATE_PASSWORD|userId|newPassword
                     if (parts.length < 3)
                         return Protocol.error("Missing fields for UPDATE_PASSWORD.");
-                    ControllerResponse<Void> res = userController.updatePassword(
-                            Integer.parseInt(parts[1]), parts[2]);
+                    ControllerResponse<Void> res = userController.updatePassword(Integer.parseInt(parts[1]), parts[2]);
                     return serialize(res, null);
                 }
 
@@ -132,8 +117,7 @@ public class ClientHandler implements Runnable {
                     //UPDATE_USERNAME|userId|newUsername
                     if (parts.length < 3)
                         return Protocol.error("Missing fields for UPDATE_USERNAME.");
-                    ControllerResponse<Void> res = userController.updateUsername(
-                            Integer.parseInt(parts[1]), parts[2]);
+                    ControllerResponse<Void> res = userController.updateUsername(Integer.parseInt(parts[1]), parts[2]);
                     return serialize(res, null);
                 }
 
@@ -141,8 +125,7 @@ public class ClientHandler implements Runnable {
                     //UPGRADE_ROLE|userId|newRole
                     if (parts.length < 3)
                         return Protocol.error("Missing fields for UPGRADE_ROLE.");
-                    ControllerResponse<Void> res = userController.upgradeRole(
-                            Integer.parseInt(parts[1]), parts[2]);
+                    ControllerResponse<Void> res = userController.upgradeRole(Integer.parseInt(parts[1]), parts[2]);
                     return serialize(res, null);
                 }
 
@@ -150,8 +133,7 @@ public class ClientHandler implements Runnable {
                     //DOWNGRADE_ROLE|userId|newRole
                     if (parts.length < 3)
                         return Protocol.error("Missing fields for DOWNGRADE_ROLE.");
-                    ControllerResponse<Void> res = userController.downgradeRole(
-                            Integer.parseInt(parts[1]), parts[2]);
+                    ControllerResponse<Void> res = userController.downgradeRole(Integer.parseInt(parts[1]), parts[2]);
                     return serialize(res, null);
                 }
 
@@ -163,14 +145,12 @@ public class ClientHandler implements Runnable {
                     return serialize(res, null);
                 }
 
-                //JOKES:
+                //Jokes:
                 case Protocol.SUBMIT_JOKE: {
-                    //SUBMIT_JOKE|creatorId|creatorRole|setup|punchline|category
-                    if (parts.length < 6)
+                    //SUBMIT_JOKE|creatorId|creatorRole|jokeText
+                    if (parts.length < 4)
                         return Protocol.error("Missing fields for SUBMIT_JOKE.");
-                    ControllerResponse<Joke> res = jokeController.submitJoke(
-                            Integer.parseInt(parts[1]), parts[2],
-                            parts[3]);
+                    ControllerResponse<Joke> res = jokeController.submitJoke(Integer.parseInt(parts[1]), parts[2], parts[3]);
                     return serialize(res, res.isSuccess() ? serializeJoke(res.getData()) : null);
                 }
 
@@ -184,8 +164,7 @@ public class ClientHandler implements Runnable {
                     //GET_MY_JOKES|creatorId|creatorRole
                     if (parts.length < 3)
                         return Protocol.error("Missing fields for GET_MY_JOKES.");
-                    ControllerResponse<List<Joke>> res = jokeController.getMyJokes(
-                            Integer.parseInt(parts[1]), parts[2]);
+                    ControllerResponse<List<Joke>> res = jokeController.getMyJokes(Integer.parseInt(parts[1]), parts[2]);
                     return serialize(res, res.isSuccess() ? serializeJokeList(res.getData()) : null);
                 }
 
@@ -201,8 +180,7 @@ public class ClientHandler implements Runnable {
                     //GET_JOKE_BY_ID|jokeId|requesterRole
                     if (parts.length < 3)
                         return Protocol.error("Missing fields for GET_JOKE_BY_ID.");
-                    ControllerResponse<Joke> res = jokeController.getJokeById(
-                            Integer.parseInt(parts[1]), parts[2]);
+                    ControllerResponse<Joke> res = jokeController.getJokeById(Integer.parseInt(parts[1]), parts[2]);
                     return serialize(res, res.isSuccess() ? serializeJoke(res.getData()) : null);
                 }
 
@@ -210,9 +188,7 @@ public class ClientHandler implements Runnable {
                     //EDIT_JOKE|requesterId|jokeId|newSetup|newPunchline|newCategory
                     if (parts.length < 6)
                         return Protocol.error("Missing fields for EDIT_JOKE.");
-                    ControllerResponse<Void> res = jokeController.editJoke(
-                            Integer.parseInt(parts[1]), Integer.parseInt(parts[2]),
-                            parts[3]);
+                    ControllerResponse<Void> res = jokeController.editJoke(Integer.parseInt(parts[1]), Integer.parseInt(parts[2]), parts[3]);
                     return serialize(res, null);
                 }
 
@@ -220,19 +196,16 @@ public class ClientHandler implements Runnable {
                     //DELETE_JOKE|requesterId|requesterRole|jokeId
                     if (parts.length < 4)
                         return Protocol.error("Missing fields for DELETE_JOKE.");
-                    ControllerResponse<Void> res = jokeController.deleteJoke(
-                            Integer.parseInt(parts[1]), parts[2],
-                            Integer.parseInt(parts[3]));
+                    ControllerResponse<Void> res = jokeController.deleteJoke(Integer.parseInt(parts[1]), parts[2], Integer.parseInt(parts[3]));
                     return serialize(res, null);
                 }
 
-                //MODERATION:
+                //Moderation:
                 case Protocol.GET_PENDING: {
                     //GET_PENDING|moderatorRole
                     if (parts.length < 2)
                         return Protocol.error("Missing moderatorRole.");
-                    ControllerResponse<List<Joke>> res = moderationController
-                            .getPendingJokes(parts[1]);
+                    ControllerResponse<List<Joke>> res = moderationController.getPendingJokes(parts[1]);
                     return serialize(res, res.isSuccess() ? serializeJokeList(res.getData()) : null);
                 }
 
@@ -240,8 +213,7 @@ public class ClientHandler implements Runnable {
                     //APPROVE_JOKE|moderatorRole|jokeId
                     if (parts.length < 3)
                         return Protocol.error("Missing fields for APPROVE_JOKE.");
-                    ControllerResponse<Void> res = moderationController.approveJoke(
-                            parts[1], Integer.parseInt(parts[2]));
+                    ControllerResponse<Void> res = moderationController.approveJoke(parts[1], Integer.parseInt(parts[2]));
                     return serialize(res, null);
                 }
 
@@ -249,8 +221,7 @@ public class ClientHandler implements Runnable {
                     //REJECT_JOKE|moderatorRole|jokeId
                     if (parts.length < 3)
                         return Protocol.error("Missing fields for REJECT_JOKE.");
-                    ControllerResponse<Void> res = moderationController.rejectJoke(
-                            parts[1], Integer.parseInt(parts[2]));
+                    ControllerResponse<Void> res = moderationController.rejectJoke(parts[1], Integer.parseInt(parts[2]));
                     return serialize(res, null);
                 }
 
@@ -258,8 +229,7 @@ public class ClientHandler implements Runnable {
                     //GET_MOD_REQUESTS|moderatorRole
                     if (parts.length < 2)
                         return Protocol.error("Missing moderatorRole.");
-                    ControllerResponse<List<User>> res = moderationController
-                            .getPendingModeratorRequests(parts[1]);
+                    ControllerResponse<List<User>> res = moderationController.getPendingModeratorRequests(parts[1]);
                     return serialize(res, res.isSuccess() ? serializeUserList(res.getData()) : null);
                 }
 
@@ -267,8 +237,7 @@ public class ClientHandler implements Runnable {
                     //APPROVE_MOD_REQUEST|moderatorRole|targetUserId
                     if (parts.length < 3)
                         return Protocol.error("Missing fields for APPROVE_MOD_REQUEST.");
-                    ControllerResponse<Void> res = moderationController.approveModeratorRequest(
-                            parts[1], Integer.parseInt(parts[2]));
+                    ControllerResponse<Void> res = moderationController.approveModeratorRequest(parts[1], Integer.parseInt(parts[2]));
                     return serialize(res, null);
                 }
 
@@ -276,18 +245,16 @@ public class ClientHandler implements Runnable {
                     //DENY_MOD_REQUEST|moderatorRole|targetUserId
                     if (parts.length < 3)
                         return Protocol.error("Missing fields for DENY_MOD_REQUEST.");
-                    ControllerResponse<Void> res = moderationController.denyModeratorRequest(
-                            parts[1], Integer.parseInt(parts[2]));
+                    ControllerResponse<Void> res = moderationController.denyModeratorRequest(parts[1], Integer.parseInt(parts[2]));
                     return serialize(res, null);
                 }
 
-                //VOTES:
+                //Votes:
                 case Protocol.UPVOTE: {
                     //UPVOTE|userId|jokeId
                     if (parts.length < 3)
                         return Protocol.error("Missing fields for UPVOTE.");
-                    ControllerResponse<Vote> res = voteController.upvote(
-                            Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
+                    ControllerResponse<Vote> res = voteController.upvote(Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
                     return serialize(res, res.isSuccess() ? serializeVote(res.getData()) : null);
                 }
 
@@ -295,8 +262,7 @@ public class ClientHandler implements Runnable {
                     //DOWNVOTE|userId|jokeId
                     if (parts.length < 3)
                         return Protocol.error("Missing fields for DOWNVOTE.");
-                    ControllerResponse<Vote> res = voteController.downvote(
-                            Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
+                    ControllerResponse<Vote> res = voteController.downvote(Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
                     return serialize(res, res.isSuccess() ? serializeVote(res.getData()) : null);
                 }
 
@@ -304,8 +270,7 @@ public class ClientHandler implements Runnable {
                     //RETRACT_VOTE|userId|jokeId
                     if (parts.length < 3)
                         return Protocol.error("Missing fields for RETRACT_VOTE.");
-                    ControllerResponse<Void> res = voteController.retractVote(
-                            Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
+                    ControllerResponse<Void> res = voteController.retractVote(Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
                     return serialize(res, null);
                 }
 
@@ -313,8 +278,7 @@ public class ClientHandler implements Runnable {
                     //GET_VOTE_COUNT|jokeId
                     if (parts.length < 2)
                         return Protocol.error("Missing jokeId.");
-                    ControllerResponse<Integer> res = voteController.getVoteCount(
-                            Integer.parseInt(parts[1]));
+                    ControllerResponse<Integer> res = voteController.getVoteCount(Integer.parseInt(parts[1]));
                     return serialize(res, res.isSuccess() ? String.valueOf(res.getData()) : null);
                 }
 
@@ -322,8 +286,7 @@ public class ClientHandler implements Runnable {
                     //GET_VOTES_JOKE|jokeId|requesterRole
                     if (parts.length < 3)
                         return Protocol.error("Missing fields for GET_VOTES_JOKE.");
-                    ControllerResponse<List<Vote>> res = voteController.getVotesForJoke(
-                            Integer.parseInt(parts[1]), parts[2]);
+                    ControllerResponse<List<Vote>> res = voteController.getVotesForJoke(Integer.parseInt(parts[1]), parts[2]);
                     return serialize(res, res.isSuccess() ? serializeVoteList(res.getData()) : null);
                 }
 
@@ -331,9 +294,7 @@ public class ClientHandler implements Runnable {
                     //GET_VOTES_USER|requesterId|requesterRole|targetUserId
                     if (parts.length < 4)
                         return Protocol.error("Missing fields for GET_VOTES_USER.");
-                    ControllerResponse<List<Vote>> res = voteController.getVotesByUser(
-                            Integer.parseInt(parts[1]), parts[2],
-                            Integer.parseInt(parts[3]));
+                    ControllerResponse<List<Vote>> res = voteController.getVotesByUser(Integer.parseInt(parts[1]), parts[2], Integer.parseInt(parts[3]));
                     return serialize(res, res.isSuccess() ? serializeVoteList(res.getData()) : null);
                 }
 
@@ -341,12 +302,11 @@ public class ClientHandler implements Runnable {
                     //DELETE_VOTE|requesterRole|voteId
                     if (parts.length < 3)
                         return Protocol.error("Missing fields for DELETE_VOTE.");
-                    ControllerResponse<Void> res = voteController.deleteVote(
-                            parts[1], Integer.parseInt(parts[2]));
+                    ControllerResponse<Void> res = voteController.deleteVote(parts[1], Integer.parseInt(parts[2]));
                     return serialize(res, null);
                 }
 
-                //JOKE OF THE DAY:
+                //Joke of the day:
                 case Protocol.GET_JOD: {
                     //GET_JOD
                     ControllerResponse<JokeOfTheDay> res = jodController.getJokeOfTheDay();
@@ -357,8 +317,7 @@ public class ClientHandler implements Runnable {
                     //GET_JOD_BY_ID|id
                     if (parts.length < 2)
                         return Protocol.error("Missing id.");
-                    ControllerResponse<JokeOfTheDay> res = jodController.getJokeOfTheDayById(
-                            Integer.parseInt(parts[1]));
+                    ControllerResponse<JokeOfTheDay> res = jodController.getJokeOfTheDayById(Integer.parseInt(parts[1]));
                     return serialize(res, res.isSuccess() ? serializeJod(res.getData()) : null);
                 }
 
@@ -366,8 +325,7 @@ public class ClientHandler implements Runnable {
                     //REFRESH_JOD|requesterRole
                     if (parts.length < 2)
                         return Protocol.error("Missing requesterRole.");
-                    ControllerResponse<JokeOfTheDay> res = jodController.refreshJokeOfTheDay(
-                            parts[1]);
+                    ControllerResponse<JokeOfTheDay> res = jodController.refreshJokeOfTheDay(parts[1]);
                     return serialize(res, res.isSuccess() ? serializeJod(res.getData()) : null);
                 }
 
@@ -375,8 +333,7 @@ public class ClientHandler implements Runnable {
                     //UPDATE_JOD_VOTES|jodId|totalVotes
                     if (parts.length < 3)
                         return Protocol.error("Missing fields for UPDATE_JOD_VOTES.");
-                    ControllerResponse<Void> res = jodController.updateVoteCount(
-                            Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
+                    ControllerResponse<Void> res = jodController.updateVoteCount(Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
                     return serialize(res, null);
                 }
 
@@ -384,8 +341,7 @@ public class ClientHandler implements Runnable {
                     //DELETE_JOD|requesterRole|id
                     if (parts.length < 3)
                         return Protocol.error("Missing fields for DELETE_JOD.");
-                    ControllerResponse<Void> res = jodController.deleteJokeOfTheDayById(
-                            parts[1], Integer.parseInt(parts[2]));
+                    ControllerResponse<Void> res = jodController.deleteJokeOfTheDayById(parts[1], Integer.parseInt(parts[2]));
                     return serialize(res, null);
                 }
 
@@ -401,9 +357,9 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    //SERIALIZERS
-    //Convert model objects into pipe-separated strings so they can be sent over the network as plain text
-    //Format: field1,field2,field3
+    //Serializers:
+    //Convert model objects into pipe-separated strings so they can be sent over the network as plain text.
+    //Format: field1,field2,field3.
 
     private String serializeUser(User u) {
         if (u == null) return "";
@@ -426,6 +382,7 @@ public class ClientHandler implements Runnable {
         if (j == null) return "";
         return j.getJokeId()    + ","
                 + j.getCreatorId() + ","
+                + j.getJokeText() + ","
                 + j.getStatus();
     }
 

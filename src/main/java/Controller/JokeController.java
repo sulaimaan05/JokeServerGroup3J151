@@ -21,8 +21,8 @@ public class JokeController {
 
         Optional<Joke> result = jokeService.submitJoke(creatorId, creatorRole, jokeText);
         return result
-                .map(j -> ControllerResponse.success("Joke submitted for review! It will be visible once approved.", j))
-                .orElse(ControllerResponse.failure("Failed to submit joke. Only joke creators and moderators may submit jokes."));
+            .map(j -> ControllerResponse.success("Joke submitted for review! It will be visible once approved.", j))
+            .orElse(ControllerResponse.failure("Failed to submit joke. Only joke creators and moderators may submit jokes."));
     }
 
     public ControllerResponse<List<Joke>> getApprovedJokes() {
@@ -75,8 +75,8 @@ public class JokeController {
 
         boolean updated = jokeService.editJoke(requesterId, jokeId, newJokeText);
         return updated
-                ? ControllerResponse.success("Joke updated successfully.")
-                : ControllerResponse.failure("Failed to update joke. You may only edit your own pending jokes.");
+            ? ControllerResponse.success("Joke updated successfully.")
+            : ControllerResponse.failure("Failed to update joke. You may only edit your own pending jokes.");
     }
 
     public ControllerResponse<Void> moderateJoke(int jokeId, String requesterRole, String newStatus) throws SQLException {
@@ -85,14 +85,14 @@ public class JokeController {
 
         boolean updated = jokeService.moderateJoke(jokeId, newStatus);
         return updated
-                ? ControllerResponse.success("Joke status updated to: " + newStatus + ".")
-                : ControllerResponse.failure("Failed to update joke status. Invalid status or joke not found.");
+            ? ControllerResponse.success("Joke status updated to: " + newStatus + ".")
+            : ControllerResponse.failure("Failed to update joke status. Invalid status or joke not found.");
     }
 
     public ControllerResponse<Void> deleteJoke(int requesterId, String requesterRole, int jokeId) {
         boolean deleted = jokeService.deleteJoke(requesterId, requesterRole, jokeId);
         return deleted
-                ? ControllerResponse.success("Joke deleted successfully.")
-                : ControllerResponse.failure("Failed to delete joke. You may only delete your own jokes.");
+            ? ControllerResponse.success("Joke deleted successfully.")
+            : ControllerResponse.failure("Failed to delete joke. You may only delete your own jokes.");
     }
 }

@@ -122,7 +122,7 @@ public class CreatorScreen extends JFrame {
                 for (String jokeStr : jokes) {
                     if (jokeStr.isBlank()) continue;
                     //Format: jokeId,creatorId,setup,punchline,status.
-                    // CORRECT
+                    //CORRECT
                     String[] fields = jokeStr.split(",", 4);
                     if (fields.length >= 4) {
                         sb.append("[").append(fields[0]).append("] ");
