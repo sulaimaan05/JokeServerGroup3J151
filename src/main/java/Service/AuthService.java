@@ -52,9 +52,10 @@ public class AuthService {
 
     private boolean isValidRole(String role) {
         return role != null && (
-                role.equals("user") ||
+                role.equals("viewer") ||
                         role.equals("creator") ||
-                        role.equals("moderator_pending")
+                        role.equals("moderator") ||
+                        role.equals("moderator")
         );
     }
 }

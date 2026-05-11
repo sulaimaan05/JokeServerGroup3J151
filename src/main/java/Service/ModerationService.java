@@ -80,7 +80,7 @@ public class ModerationService {
         User user = userOpt.get();
         if (!"moderator_pending".equals(user.getRole())) return false;
 
-        user.setRole("user");
+        user.setRole("viewer");
         userRepo.updateUser(user);
         return true;
     }

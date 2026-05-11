@@ -14,7 +14,7 @@ public class UserService {
 
     //Roles ordered by privilege level (ascending):
     private static final List<String> ROLE_HIERARCHY = List.of(
-            "user",
+            "viewer",
             "creator",
             "moderator_pending",
             "moderator"
