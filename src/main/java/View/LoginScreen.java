@@ -90,7 +90,7 @@ public class LoginScreen extends JFrame {
 
         if (Protocol.isSuccess(response)) {
             //Response format:
-            //SUCCESS|Welcome back, alice!|1,alice,alice@test.com,joke_creator,Alice
+            //SUCCESS|Welcome back, alice!|1,alice,alice@test.com,creator,Alice
             String data  = Protocol.getData(response);
             String[] parts = data.split(Protocol.SEPARATOR, 2);
 
@@ -108,7 +108,7 @@ public class LoginScreen extends JFrame {
                 case "viewer":
                     new ViewerScreen().setVisible(true);
                     break;
-                case "joke_creator":
+                case "creator":
                     new CreatorScreen().setVisible(true);
                     break;
                 case "moderator":

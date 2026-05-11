@@ -70,7 +70,7 @@ public class ViewerScreen extends JFrame {
                 StringBuilder sb = new StringBuilder();
                 for (String jokeStr : jokes) {
                     if (jokeStr.isBlank()) continue;
-                    //Format: jokeId,creatorId,setup,punchline,status
+                    //Format: jokeId,creatorId,jokeText,status
                     String[] fields = jokeStr.split(",", 4);
                     if (fields.length >= 3) {
                         sb.append("[").append(fields[0]).append("] ");

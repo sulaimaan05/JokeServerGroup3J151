@@ -45,7 +45,7 @@ public class RegisterScreen extends JFrame {
 
         formPanel.add(new JLabel("Account Type:"));
         //Role names must match exactly what the server expects:
-        String[] roles = {"viewer", "joke_creator", "moderator"};
+        String[] roles = {"viewer", "creator", "moderator"};
         roleComboBox   = new JComboBox<>(roles);
         formPanel.add(roleComboBox);
 
@@ -101,7 +101,7 @@ public class RegisterScreen extends JFrame {
                 case "viewer":
                     new ViewerScreen().setVisible(true);
                     break;
-                case "joke_creator":
+                case "creator":
                     new CreatorScreen().setVisible(true);
                     break;
                 case "moderator":

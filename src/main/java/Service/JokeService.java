@@ -120,6 +120,6 @@ public class JokeService {
     }
 
     private boolean canCreateJokes(String role) {
-        return "joke_creator".equals(role) || "moderator".equals(role);
+        return "creator".equals(role) || "moderator".equals(role);
     }
 }

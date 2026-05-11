@@ -125,8 +125,8 @@ public class Protocol {
         return GET_JOKE_BY_ID + SEPARATOR_PLAIN + jokeId + SEPARATOR_PLAIN + requesterRole;
     }
 
-    public static String buildEditJoke(int requesterId, int jokeId, String newSetup, String newPunchline, String newCategory) {
-        return EDIT_JOKE + SEPARATOR_PLAIN + requesterId + SEPARATOR_PLAIN + jokeId + SEPARATOR_PLAIN + newSetup + SEPARATOR_PLAIN + newPunchline    + SEPARATOR_PLAIN + newCategory;
+    public static String buildEditJoke(int requesterId, int jokeId, String newJokeText) {
+        return EDIT_JOKE + SEPARATOR_PLAIN + requesterId + SEPARATOR_PLAIN + jokeId + SEPARATOR_PLAIN + newJokeText;
     }
 
     public static String buildDeleteJoke(int requesterId, String requesterRole, int jokeId) {

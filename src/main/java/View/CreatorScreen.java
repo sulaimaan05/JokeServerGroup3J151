@@ -8,7 +8,6 @@ import java.awt.*;
 public class CreatorScreen extends JFrame {
 
     private JTextArea jokeTextArea;
-    private JTextField categoryField;
     private JTextArea myJokesArea;
     private JButton submitButton;
     private JButton jokeOfDayButton;
@@ -36,14 +35,10 @@ public class CreatorScreen extends JFrame {
 
         JPanel inputFields = new JPanel(new GridLayout(6, 1, 5, 5));
 
-        inputFields.add(new JLabel("Setup:"));
+        inputFields.add(new JLabel("Joke text:"));
         jokeTextArea = new JTextArea(2, 30);
         jokeTextArea.setLineWrap(true);
         inputFields.add(new JScrollPane(jokeTextArea));
-
-        inputFields.add(new JLabel("Category:"));
-        categoryField = new JTextField();
-        inputFields.add(categoryField);
 
         submitPanel.add(inputFields, BorderLayout.CENTER);
         submitButton = new JButton("Submit Joke");
@@ -121,7 +116,7 @@ public class CreatorScreen extends JFrame {
                 StringBuilder sb = new StringBuilder();
                 for (String jokeStr : jokes) {
                     if (jokeStr.isBlank()) continue;
-                    //Format: jokeId,creatorId,setup,punchline,status.
+                    //Format: jokeId,creatorId,jokeText,status.
                     //CORRECT
                     String[] fields = jokeStr.split(",", 4);
                     if (fields.length >= 4) {

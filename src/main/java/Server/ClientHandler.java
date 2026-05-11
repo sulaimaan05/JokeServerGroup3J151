@@ -185,7 +185,7 @@ public class ClientHandler implements Runnable {
                 }
 
                 case Protocol.EDIT_JOKE: {
-                    //EDIT_JOKE|requesterId|jokeId|newSetup|newPunchline|newCategory
+                    //EDIT_JOKE|requesterId|jokeId|newJokeText
                     if (parts.length < 6)
                         return Protocol.error("Missing fields for EDIT_JOKE.");
                     ControllerResponse<Void> res = jokeController.editJoke(Integer.parseInt(parts[1]), Integer.parseInt(parts[2]), parts[3]);

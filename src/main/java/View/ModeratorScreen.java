@@ -96,7 +96,7 @@ public class ModeratorScreen extends JFrame {
                 StringBuilder sb = new StringBuilder();
                 for (String jokeStr : jokes) {
                     if (jokeStr.isBlank()) continue;
-                    //Format: jokeId,creatorId,setup,punchline,status
+                    //Format: jokeId,creatorId,jokeText,status
                     String[] fields = jokeStr.split(",", 5);
                     if (fields.length >= 4) {
                         sb.append("[ID: ").append(fields[0]).append("] ");
