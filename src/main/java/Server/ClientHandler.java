@@ -410,8 +410,7 @@ public class ClientHandler implements Runnable {
         return u.getUserId()      + ","
                 + u.getUsername()    + ","
                 + u.getEmail()       + ","
-                + u.getRole()        + ","
-                + u.getDisplayName();
+                + u.getRole();
     }
 
     private String serializeUserList(List<User> users) {
@@ -427,8 +426,6 @@ public class ClientHandler implements Runnable {
         if (j == null) return "";
         return j.getJokeId()    + ","
                 + j.getCreatorId() + ","
-                + j.getSetup()     + ","
-                + j.getPunchline() + ","
                 + j.getStatus();
     }
 
