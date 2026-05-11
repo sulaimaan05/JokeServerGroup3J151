@@ -7,12 +7,10 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-
 public class JokeService {
 
     private final JokeRepo jokeRepo;
 
-    // Allowed joke statuses
     public static final String STATUS_PENDING  = "pending";
     public static final String STATUS_APPROVED = "approved";
     public static final String STATUS_REJECTED = "rejected";
@@ -21,16 +19,13 @@ public class JokeService {
         this.jokeRepo = jokeRepo;
     }
 
-    public Optional<Joke> submitJoke(int creatorId, String creatorRole, String setup, String punchline, String category) throws SQLException {
+    public Optional<Joke> submitJoke(int creatorId, String creatorRole, String jokeText) throws SQLException {
         if (!canCreateJokes(creatorRole)) return Optional.empty();
-        if (setup == null || setup.isBlank()) return Optional.empty();
-        if (punchline == null || punchline.isBlank()) return Optional.empty();
+        if (jokeText == null || jokeText.isBlank()) return Optional.empty();
 
         Joke joke = new Joke();
         joke.setCreatorId(creatorId);
-        joke.setSetup(setup);
-        joke.setPunchline(punchline);
-        joke.setCategory(category != null ? category : "general");
+        joke.setJokeText(jokeText);
         joke.setStatus(STATUS_PENDING);
 
         return jokeRepo.createJoke(joke);
@@ -76,8 +71,7 @@ public class JokeService {
         }
     }
 
-
-    public boolean editJoke(int requesterId, int jokeId, String newSetup, String newPunchline, String newCategory) throws SQLException {
+    public boolean editJoke(int requesterId, int jokeId, String newJokeText) throws SQLException {
         Optional<Joke> jokeOpt = jokeRepo.getJokeById(jokeId);
         if (jokeOpt.isEmpty()) return false;
 
@@ -89,16 +83,21 @@ public class JokeService {
         // Cannot edit an approved or rejected joke
         if (!joke.getStatus().equals(STATUS_PENDING)) return false;
 
-        if (newSetup != null && !newSetup.isBlank())     joke.setSetup(newSetup);
-        if (newPunchline != null && !newPunchline.isBlank()) joke.setPunchline(newPunchline);
-        if (newCategory != null && !newCategory.isBlank()) joke.setCategory(newCategory);
+        if (newJokeText != null && !newJokeText.isBlank()) {
+            joke.setJokeText(newJokeText);
+        }
 
         jokeRepo.updateJoke(joke);
         return true;
     }
 
+    public boolean moderateJoke(int jokeId, String newStatus) throws SQLException {
+        if (!newStatus.equals(STATUS_APPROVED) && !newStatus.equals(STATUS_REJECTED)) return false;
+        return jokeRepo.updateJokeStatus(jokeId, newStatus);
+    }
+
     public boolean deleteJoke(int requesterId, String requesterRole, int jokeId) {
-        Optional<Joke> jokeOpt = null;
+        Optional<Joke> jokeOpt;
         try {
             jokeOpt = jokeRepo.getJokeById(jokeId);
         } catch (SQLException e) {

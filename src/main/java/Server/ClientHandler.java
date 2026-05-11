@@ -170,7 +170,7 @@ public class ClientHandler implements Runnable {
                         return Protocol.error("Missing fields for SUBMIT_JOKE.");
                     ControllerResponse<Joke> res = jokeController.submitJoke(
                             Integer.parseInt(parts[1]), parts[2],
-                            parts[3], parts[4], parts[5]);
+                            parts[3]);
                     return serialize(res, res.isSuccess() ? serializeJoke(res.getData()) : null);
                 }
 
@@ -212,7 +212,7 @@ public class ClientHandler implements Runnable {
                         return Protocol.error("Missing fields for EDIT_JOKE.");
                     ControllerResponse<Void> res = jokeController.editJoke(
                             Integer.parseInt(parts[1]), Integer.parseInt(parts[2]),
-                            parts[3], parts[4], parts[5]);
+                            parts[3]);
                     return serialize(res, null);
                 }
 

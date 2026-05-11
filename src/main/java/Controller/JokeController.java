@@ -1,13 +1,11 @@
 package Controller;
 
-import Controller.ControllerResponse;
 import Model.Joke;
 import Service.JokeService;
 
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
-
 
 public class JokeController {
 
@@ -17,14 +15,11 @@ public class JokeController {
         this.jokeService = jokeService;
     }
 
-    public ControllerResponse<Joke> submitJoke(int creatorId, String creatorRole,
-                                               String setup, String punchline, String category) throws SQLException {
-        if (setup == null || setup.isBlank())
-            return ControllerResponse.failure("Joke setup cannot be empty.");
-        if (punchline == null || punchline.isBlank())
-            return ControllerResponse.failure("Joke punchline cannot be empty.");
+    public ControllerResponse<Joke> submitJoke(int creatorId, String creatorRole, String jokeText) throws SQLException {
+        if (jokeText == null || jokeText.isBlank())
+            return ControllerResponse.failure("Joke text cannot be empty.");
 
-        Optional<Joke> result = jokeService.submitJoke(creatorId, creatorRole, setup, punchline, category);
+        Optional<Joke> result = jokeService.submitJoke(creatorId, creatorRole, jokeText);
         return result
                 .map(j -> ControllerResponse.success("Joke submitted for review! It will be visible once approved.", j))
                 .orElse(ControllerResponse.failure("Failed to submit joke. Only joke creators and moderators may submit jokes."));
@@ -37,8 +32,16 @@ public class JokeController {
         return ControllerResponse.success("Retrieved " + jokes.size() + " joke(s).", jokes);
     }
 
+    public ControllerResponse<List<Joke>> getPendingJokes(String requesterRole) {
+        if (!"moderator".equals(requesterRole))
+            return ControllerResponse.failure("Access denied. Moderator role required.");
+
+        List<Joke> jokes = jokeService.getPendingJokes();
+        return ControllerResponse.success("Retrieved " + jokes.size() + " pending joke(s).", jokes);
+    }
+
     public ControllerResponse<List<Joke>> getMyJokes(int creatorId, String creatorRole) {
-        if (!"creator".equals(creatorRole) && !"moderator".equals(creatorRole))
+        if (!"joke_creator".equals(creatorRole) && !"moderator".equals(creatorRole))
             return ControllerResponse.failure("Access denied. Only joke creators can view their submitted jokes.");
 
         List<Joke> jokes = jokeService.getJokesByCreator(creatorId);
@@ -60,19 +63,30 @@ public class JokeController {
 
         Joke joke = jokeOpt.get();
 
-        // Non-moderators can only view approved jokes
         if (!"moderator".equals(requesterRole) && !"approved".equals(joke.getStatus()))
             return ControllerResponse.failure("This joke is not yet available for public viewing.");
 
         return ControllerResponse.success("Joke retrieved.", joke);
     }
 
-    public ControllerResponse<Void> editJoke(int requesterId, int jokeId,
-                                             String newSetup, String newPunchline, String newCategory) throws SQLException {
-        boolean updated = jokeService.editJoke(requesterId, jokeId, newSetup, newPunchline, newCategory);
+    public ControllerResponse<Void> editJoke(int requesterId, int jokeId, String newJokeText) throws SQLException {
+        if (newJokeText == null || newJokeText.isBlank())
+            return ControllerResponse.failure("New joke text cannot be empty.");
+
+        boolean updated = jokeService.editJoke(requesterId, jokeId, newJokeText);
         return updated
                 ? ControllerResponse.success("Joke updated successfully.")
                 : ControllerResponse.failure("Failed to update joke. You may only edit your own pending jokes.");
+    }
+
+    public ControllerResponse<Void> moderateJoke(int jokeId, String requesterRole, String newStatus) throws SQLException {
+        if (!"moderator".equals(requesterRole))
+            return ControllerResponse.failure("Access denied. Moderator role required.");
+
+        boolean updated = jokeService.moderateJoke(jokeId, newStatus);
+        return updated
+                ? ControllerResponse.success("Joke status updated to: " + newStatus + ".")
+                : ControllerResponse.failure("Failed to update joke status. Invalid status or joke not found.");
     }
 
     public ControllerResponse<Void> deleteJoke(int requesterId, String requesterRole, int jokeId) {
