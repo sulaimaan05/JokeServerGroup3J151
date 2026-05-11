@@ -111,8 +111,7 @@ public class Protocol {
 
     //Jokes
     public static String buildSubmitJoke(int creatorId, String creatorRole,
-                                         String setup, String punchline,
-                                         String category) {
+                                         String setup) {
         return SUBMIT_JOKE + SEPARATOR_PLAIN + creatorId   + SEPARATOR_PLAIN
                 + creatorRole     + SEPARATOR_PLAIN
                 + setup           + SEPARATOR_PLAIN

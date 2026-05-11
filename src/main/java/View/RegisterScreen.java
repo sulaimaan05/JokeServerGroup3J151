@@ -1,11 +1,12 @@
 package View;
 
+import Protocol.Protocol;
+
 import javax.swing.*;
 import java.awt.*;
 
 public class RegisterScreen extends JFrame {
 
-    //Instance variables:
     private JTextField usernameField;
     private JTextField emailField;
     private JPasswordField passwordField;
@@ -14,15 +15,7 @@ public class RegisterScreen extends JFrame {
     private JButton backButton;
     private JLabel messageLabel;
 
-    private String username;
-    private int userId;
-    String role;
-
     public RegisterScreen() {
-        this.username = username;
-        this.userId = userId;
-        this.role = role;
-
         setTitle("Joke Server - Register");
         setSize(400, 350);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -36,7 +29,6 @@ public class RegisterScreen extends JFrame {
         titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
         mainPanel.add(titleLabel, BorderLayout.NORTH);
 
-        //Form:
         JPanel formPanel = new JPanel(new GridLayout(5, 2, 10, 10));
 
         formPanel.add(new JLabel("Username:"));
@@ -52,9 +44,9 @@ public class RegisterScreen extends JFrame {
         formPanel.add(passwordField);
 
         formPanel.add(new JLabel("Account Type:"));
-        //JComboBox is a dropdown menu:
-        String[] roles = {"viewer", "creator", "moderator"}; //String array of roles.
-        roleComboBox = new JComboBox<>(roles);
+        //Role names must match exactly what the server expects:
+        String[] roles = {"viewer", "joke_creator", "moderator"};
+        roleComboBox   = new JComboBox<>(roles);
         formPanel.add(roleComboBox);
 
         messageLabel = new JLabel("", SwingConstants.CENTER);
@@ -63,7 +55,6 @@ public class RegisterScreen extends JFrame {
 
         mainPanel.add(formPanel, BorderLayout.CENTER);
 
-        //Buttons:
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
         registerButton = new JButton("Register");
         backButton = new JButton("Back to Login");
@@ -79,19 +70,55 @@ public class RegisterScreen extends JFrame {
 
     private void handleRegister() {
         String username = usernameField.getText().trim();
-        String email    = emailField.getText().trim();
+        String email = emailField.getText().trim();
         String password = new String(passwordField.getPassword()).trim();
         String role = (String) roleComboBox.getSelectedItem();
 
         if (username.isEmpty() || email.isEmpty() || password.isEmpty()) {
+            messageLabel.setForeground(Color.RED);
             messageLabel.setText("Please fill in all fields.");
             return;
         }
 
-        // TODO: call Controller/Service to register user
-        // For now simulate success:
-        messageLabel.setForeground(Color.GREEN);
-        messageLabel.setText("Account created! Please login.");
+        // Send register request to server
+        String response = LoginScreen.client.sendRequest(Protocol.buildRegister(username, password, email, role));
+
+        if (Protocol.isSuccess(response)) {
+            //Same parsing as login — server returns a User object:
+            String   data  = Protocol.getData(response);
+            String[] parts = data.split(Protocol.SEPARATOR, 2);
+
+            if (parts.length > 1) {
+                //Format: userId,username,email,role,displayName
+                String[] userFields = parts[1].split(",", 5);
+                LoginScreen.loggedInUserId   = Integer.parseInt(userFields[0]);
+                LoginScreen.loggedInUserName = userFields[1];
+                LoginScreen.loggedInRole     = userFields[3];
+            }
+
+            //Open the correct screen straight away — no need to go back to login after registering.
+            switch (LoginScreen.loggedInRole) {
+                case "viewer":
+                    new ViewerScreen().setVisible(true);
+                    break;
+                case "joke_creator":
+                    new CreatorScreen().setVisible(true);
+                    break;
+                case "moderator":
+                    new ModeratorScreen().setVisible(true);
+                    break;
+                default:
+                    messageLabel.setForeground(Color.RED);
+                    messageLabel.setText("Unknown role: "
+                            + LoginScreen.loggedInRole);
+                    return;
+            }
+            dispose();
+
+        } else {
+            messageLabel.setForeground(Color.RED);
+            messageLabel.setText(Protocol.getData(response));
+        }
     }
 
     private void goBack() {
